@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 3f3ba76b646f848e79d86a8c5799d4c6
+timeCreated: 1510663218
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: battlenet
+  fontNames:
+  - battlenet
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
