@@ -57,45 +57,47 @@ public class Player : MonoBehaviour {
 					}
 				}
 			}
-			if (Input.GetKeyDown (_action)) {
-				_playerSpriteRenderer.sprite = _grabSprite;
-				if (_canHarvest) {
-					bool isTouchingGroundTile = _currentGoundTile != null && _currentGoundTile.GetComponent<SpriteRenderer> ().bounds.Intersects (_playerSpriteRenderer.bounds);
-					if (isTouchingGroundTile) {
+			if (!GameManager.instance.getIsGammeOver ()) {
+				if (Input.GetKeyDown (_action)) {
+					_playerSpriteRenderer.sprite = _grabSprite;
+					if (_canHarvest) {
+						bool isTouchingGroundTile = _currentGoundTile != null && _currentGoundTile.GetComponent<SpriteRenderer> ().bounds.Intersects (_playerSpriteRenderer.bounds);
+						if (isTouchingGroundTile) {
+							bool isGrabbingPlant = transform.childCount > 0;
+							bool isTilePlanted = _currentGoundTile.transform.childCount > 0;
+							bool canHarvest = isTilePlanted && !isGrabbingPlant;
+							if (canHarvest) {
+								GameObject currentPlant = _currentGoundTile.transform.GetChild (0).gameObject;
+								GrabPlant (currentPlant);
+								GameManager.instance.IncreaseP1Score ();
+							}
+						}
+					}
+					if (_canPlant) {
+						bool isTouchingMovingPlant = _currentMovingPlant != null && _currentMovingPlant.GetComponent<SpriteRenderer> ().bounds.Intersects (_playerSpriteRenderer.bounds) && !_currentMovingPlant.GetComponent<Plant> ().GetIsPlanted ();
 						bool isGrabbingPlant = transform.childCount > 0;
-						bool isTilePlanted = _currentGoundTile.transform.childCount > 0;
-						bool canHarvest = isTilePlanted && !isGrabbingPlant;
-						if (canHarvest) {
-							GameObject currentPlant = _currentGoundTile.transform.GetChild (0).gameObject;
-							GrabPlant (currentPlant);
-							GameManager.instance.IncreaseP1Score ();
+						if (isTouchingMovingPlant && !isGrabbingPlant) {
+							GrabPlant (_currentMovingPlant);
 						}
 					}
 				}
-				if (_canPlant) {
-					bool isTouchingMovingPlant = _currentMovingPlant != null && _currentMovingPlant.GetComponent<SpriteRenderer> ().bounds.Intersects (_playerSpriteRenderer.bounds) && !_currentMovingPlant.GetComponent<Plant> ().GetIsPlanted ();
+				if (Input.GetKeyUp (_action)) {
+					_playerSpriteRenderer.sprite = _idleSprite;
 					bool isGrabbingPlant = transform.childCount > 0;
-					if (isTouchingMovingPlant && !isGrabbingPlant) {
-						GrabPlant (_currentMovingPlant);
-					}
-				}
-			}
-			if (Input.GetKeyUp (_action)) {
-				_playerSpriteRenderer.sprite = _idleSprite;
-				bool isGrabbingPlant = transform.childCount > 0;
-				if (_canHarvest) {
-					if (isGrabbingPlant) {
-						ReleasePlant ();
-					}
-				}
-				if (_canPlant) {
-					if (isGrabbingPlant) {
-						GameObject currentPlant = transform.GetChild (0).gameObject;
-						if (_currentGoundTile == null || _currentGoundTile.transform.childCount > 0) {
+					if (_canHarvest) {
+						if (isGrabbingPlant) {
 							ReleasePlant ();
-						} else {
-							PlantPlant (currentPlant);
-							GameManager.instance.IncreaseP2Score ();
+						}
+					}
+					if (_canPlant) {
+						if (isGrabbingPlant) {
+							GameObject currentPlant = transform.GetChild (0).gameObject;
+							if (_currentGoundTile == null || _currentGoundTile.transform.childCount > 0) {
+								ReleasePlant ();
+							} else {
+								PlantPlant (currentPlant);
+								GameManager.instance.IncreaseP2Score ();
+							}
 						}
 					}
 				}
@@ -111,6 +113,7 @@ public class Player : MonoBehaviour {
 		currentPlant.GetComponent<BoxCollider2D> ().isTrigger = false;
 		currentPlant.GetComponent<Plant> ().SetIsPlanted (false);
 		currentPlant.GetComponent<Plant> ().SetIsGrabbed (false);
+		currentPlant.GetComponent<SpriteRenderer> ().sortingOrder = 1;
 	}
 
 	void GrabPlant(GameObject plant) {

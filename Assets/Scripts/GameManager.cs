@@ -10,9 +10,9 @@ public class GameManager : MonoBehaviour {
 
 	[Header("Game UI Elements")]
 	[SerializeField] private Text _secondsLeft;
-	[SerializeField] private Text _P1Score;
-	[SerializeField] private Text _P2Score;
-	[SerializeField] private Text _description;
+	[SerializeField] private Text _P1ScoreUI;
+	[SerializeField] private Text _P2ScoreUI;
+	[SerializeField] private GameObject _gameOverPanel;
 
 	[Header("Ground Settings")]
 	[SerializeField] private Ground _ground;
@@ -41,8 +41,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField] private bool _player2CanPlant;
 	[SerializeField] private bool _player2CanHarvest;
 
-	private int P1Score;
-	private int P2Score;
+	private int _P1Score;
+	private int _P2Score;
+	private bool _isGameOver;
 
 	void Awake () {
 		if (instance == null)
@@ -56,13 +57,15 @@ public class GameManager : MonoBehaviour {
 	void InitialiseGame() {
 		StopAllCoroutines ();
 
+		_isGameOver = false;
+
 		_groundHeight = Random.Range (3, 5);
 		_groundLength = Random.Range (5, 10);
 
-		P1Score = 0;
-		P2Score = _groundLength * _groundHeight;
-		_P1Score.text = P1Score.ToString ();
-		_P2Score.text = P2Score.ToString ();
+		_P1Score = 0;
+		_P2Score = _groundLength * _groundHeight;
+		_P1ScoreUI.text = _P1Score.ToString ();
+		_P2ScoreUI.text = _P2Score.ToString ();
 
 		_ground.InstantiateGround (_groundLength, _groundHeight);
 
@@ -80,15 +83,19 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void IncreaseP1Score () {
-		P1Score++; P2Score--;
-		_P1Score.text = P1Score.ToString ();
-		_P2Score.text = P2Score.ToString ();
+		_P1Score++; _P2Score--;
+		_P1ScoreUI.text = _P1Score.ToString ();
+		_P2ScoreUI.text = _P2Score.ToString ();
 	}
 
 	public void IncreaseP2Score () {
-		P2Score++; P1Score--;
-		_P1Score.text = P1Score.ToString ();
-		_P2Score.text = P2Score.ToString ();
+		_P2Score++; _P1Score--;
+		_P1ScoreUI.text = _P1Score.ToString ();
+		_P2ScoreUI.text = _P2Score.ToString ();
+	}
+
+	public bool getIsGammeOver() {
+		return _isGameOver;
 	}
 
 	void SetSecondsLeft (int seconds){
@@ -96,16 +103,13 @@ public class GameManager : MonoBehaviour {
 	}
 
 	IEnumerator Countdown() {
-		for (int seconds = 60; seconds >= 0; seconds--) {
+		for (int seconds = 10; seconds >= 0; seconds--) {
 			SetSecondsLeft (seconds);
 			yield return new WaitForSeconds (1);
 		}
-		if (P1Score > P2Score) {
-			_description.text = "P1 WIN!";
-		} else {
-			_description.text = "P2 WIN!";
-		}
-		yield return new WaitForSeconds (3);
+		_isGameOver = true;
+		_gameOverPanel.SetActive (true);
+		yield return new WaitForSeconds (10);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
